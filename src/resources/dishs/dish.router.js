@@ -15,9 +15,9 @@ router.route('/').get(
 
 router.route('/').post(
   catchErrors(async (req, res) => {
-    const {title, description, photo, isPublish, ingredients, price} = req.body;
+    const {categoryId, title, description, photo, isPublish, ingredients, price} = req.body;
 
-    const dish = await dishesService.createDish({title, description, photo, isPublish, ingredients, price});
+    const dish = await dishesService.createDish({categoryId, title, description, photo, isPublish, ingredients, price});
 
     if (dish) {
       res.status(StatusCodes.CREATED).json(Dish.toResponse(dish));
@@ -48,9 +48,9 @@ router.route('/:id').get(
 router.route('/:id').put(
   catchErrors(async (req, res) => {
     const { id } = req.params;
-    const {title, description, photo, isPublish, ingredients, price} = req.body;
+    const {categoryId, title, description, photo, isPublish, ingredients, price} = req.body;
 
-    const dish = await dishesService.updateById({id, title, description, photo, isPublish, ingredients, price});
+    const dish = await dishesService.updateById({id, categoryId, title, description, photo, isPublish, ingredients, price});
 
     if (dish) {
       res.status(StatusCodes.OK).json(Dish.toResponse(dish));

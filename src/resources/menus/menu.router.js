@@ -1,6 +1,7 @@
 const { StatusCodes } = require('http-status-codes');
 const router = require('express').Router();
 const Menu = require('./menu.model');
+const Category = require('../categorys/category.model');
 
 const menusService = require('./menu.service');
 const catchErrors = require('../../common/catchErrors');
@@ -10,6 +11,21 @@ router.route('/').get(
     const menus = await menusService.getAll();
 
     res.json(menus.map(Menu.toResponse));
+  })
+);
+
+router.route('/:id/categories').get(
+  catchErrors(async (req, res) => {
+    const { id } = req.params;
+    const categories = await menusService.getCategoryIdByMenuId(id);
+
+    if (categories) {
+      res.json(categories.map((el)=>Category.toResponse(el)));
+    } else {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
+    }
   })
 );
 

@@ -4,6 +4,7 @@ const Category = require('./category.model');
 
 const categoriesService = require('./category.service');
 const catchErrors = require('../../common/catchErrors');
+const Dishes = require('../dishs/dish.model');
 
 router.route('/').get(
   catchErrors(async (req, res) => {
@@ -15,9 +16,9 @@ router.route('/').get(
 
 router.route('/').post(
   catchErrors(async (req, res) => {
-    const {title, photo, isVisible} = req.body;
+    const {title, menuId, photo, isVisible} = req.body;
 
-    const category = await categoriesService.createCategory({title, photo, isVisible});
+    const category = await categoriesService.createCategory({title, menuId, photo, isVisible});
 
     if (category) {
       res.status(StatusCodes.CREATED).json(Category.toResponse(category));
@@ -77,6 +78,21 @@ router.route('/:id').delete(
     return res
       .status(StatusCodes.NO_CONTENT)
       .json({ code: 'CATEGORY_DELETED', msg: 'The category has been deleted' });
+  })
+);
+
+router.route('/:id/dishes').get(
+  catchErrors(async (req, res) => {
+    const { id } = req.params;
+    const dishes = await categoriesService.getDishByCategoryId(id);
+
+    if (dishes) {
+      res.json(dishes.map((el)=>Dishes.toResponse(el)));
+    } else {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ code: 'DISH_NOT_FOUND', msg: 'Dish not found' });
+    }
   })
 );
 
