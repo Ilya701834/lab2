@@ -1,5 +1,7 @@
 const express = require('express');
-const userRouter = require('./resources/users/user.router');
+const menuRouter = require('./resources/menus/menu.router');
+const dishRouter = require('./resources/dishs/dish.router');
+const categoryRouter = require('./resources/categorys/category.router');
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.use('/', (req, res, next) => {
   next();
 });
 
-app.use('/users', userRouter);
+app.use('/menus', menuRouter);
+app.use('/dishes', dishRouter);
+app.use('/categories', categoryRouter);
 
 module.exports = app;
