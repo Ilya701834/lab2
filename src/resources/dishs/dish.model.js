@@ -2,6 +2,7 @@ const { v4: uuid } = require('uuid');
 
 class Dish {
     constructor({ id = uuid(),
+                    categoryId = 'null',
                     title = 'BOARD',
                     description = `description`,
                     photo = `photo.png`,
@@ -10,6 +11,7 @@ class Dish {
                     price = 1000
     } = {}) {
         this.id = id;
+        this.categoryId= categoryId;
         this.title = title;
         this.description = description;
         this.photo = photo;
@@ -19,8 +21,8 @@ class Dish {
     }
 
     static toResponse(dish) {
-        const { id, title, description, photo, isPublish, ingredients, price} = dish;
-        return { id, title, description, photo, isPublish, ingredients, price};
+        const { id, categoryId, title, description, photo, isPublish, ingredients, price} = dish;
+        return { id, categoryId, title, description, photo, isPublish, ingredients, price};
     }
 }
 
