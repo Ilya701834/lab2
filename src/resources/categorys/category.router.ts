@@ -1,13 +1,15 @@
-const { StatusCodes } = require('http-status-codes');
-const router = require('express').Router();
-const Category = require('./category.model');
+import { StatusCodes } from 'http-status-codes';
+import { Request, Response, Router } from 'express';
+import Category from './category.model';
 
-const categoriesService = require('./category.service');
-const catchErrors = require('../../common/catchErrors');
-const Dishes = require('../dishs/dish.model');
+import categoriesService from './category.service';
+import catchErrors from '../../common/catchErrors';
+import Dishes from '../dishs/dish.model';
+
+const router = Router({mergeParams: true})
 
 router.route('/').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (_req: Request, res: Response) => {
     const categories = await categoriesService.getAll();
 
     res.json(categories.map(Category.toResponse));
@@ -15,7 +17,7 @@ router.route('/').get(
 );
 
 router.route('/').post(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const {title, menuId, photo, isVisible} = req.body;
 
     const category = await categoriesService.createCategory({title, menuId, photo, isVisible});
@@ -31,10 +33,10 @@ router.route('/').post(
 );
 
 router.route('/:id').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const category = await categoriesService.getById(id);
+    const category = await categoriesService.getById(id || '');
 
     if (category) {
       res.json(Category.toResponse(category));
@@ -47,11 +49,11 @@ router.route('/:id').get(
 );
 
 router.route('/:id').put(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
     const {title, photo, isVisible} = req.body;
 
-    const category = await categoriesService.updateById({id, title, photo, isVisible});
+    const category = await categoriesService.updateById({id:id ||'', title, photo, isVisible});
 
     if (category) {
       res.status(StatusCodes.OK).json(Category.toResponse(category));
@@ -64,10 +66,10 @@ router.route('/:id').put(
 );
 
 router.route('/:id').delete(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const category = await categoriesService.deleteById(id);
+    const category = await categoriesService.deleteById(id|| '');
 
     if (!category) {
       return res
@@ -82,9 +84,9 @@ router.route('/:id').delete(
 );
 
 router.route('/:id/dishes').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const dishes = await categoriesService.getDishByCategoryId(id);
+    const dishes = await categoriesService.getDishByCategoryId(id || '');
 
     if (dishes) {
       res.json(dishes.map((el)=>Dishes.toResponse(el)));
@@ -96,4 +98,4 @@ router.route('/:id/dishes').get(
   })
 );
 
-module.exports = router;
+export default router;
