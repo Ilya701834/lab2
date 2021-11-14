@@ -1,13 +1,15 @@
-const { StatusCodes } = require('http-status-codes');
-const router = require('express').Router();
-const Menu = require('./menu.model');
-const Category = require('../categorys/category.model');
+import { StatusCodes } from 'http-status-codes';
+import { Request, Response, Router } from 'express';
+import Menu from './menu.model';
+import Category from '../categorys/category.model';
 
-const menusService = require('./menu.service');
-const catchErrors = require('../../common/catchErrors');
+import menusService from './menu.service';
+import catchErrors from '../../common/catchErrors';
+
+const router = Router({mergeParams: true})
 
 router.route('/').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (_req: Request, res: Response) => {
     const menus = await menusService.getAll();
 
     res.json(menus.map(Menu.toResponse));
@@ -15,9 +17,9 @@ router.route('/').get(
 );
 
 router.route('/:id/categories').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const categories = await menusService.getCategoryIdByMenuId(id);
+    const categories = await menusService.getCategoryIdByMenuId(id || '');
 
     if (categories) {
       res.json(categories.map((el)=>Category.toResponse(el)));
@@ -30,7 +32,7 @@ router.route('/:id/categories').get(
 );
 
 router.route('/').post(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const {title, photo, isPublish} = req.body;
 
     const menu = await menusService.createMenu({title, photo, isPublish});
@@ -46,10 +48,10 @@ router.route('/').post(
 );
 
 router.route('/:id').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const menu = await menusService.getById(id);
+    const menu = await menusService.getById(id || '');
 
     if (menu) {
       res.json(Menu.toResponse(menu));
@@ -62,11 +64,11 @@ router.route('/:id').get(
 );
 
 router.route('/:id').put(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
     const {title, photo, isPublish} = req.body;
 
-    const menu = await menusService.updateById({id, title, photo, isPublish});
+    const menu = await menusService.updateById({id:id || '' , title, photo, isPublish});
 
     if (menu) {
       res.status(StatusCodes.OK).json(Menu.toResponse(menu));
@@ -79,10 +81,10 @@ router.route('/:id').put(
 );
 
 router.route('/:id').delete(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const menu = await menusService.deleteById(id);
+    const menu = await menusService.deleteById(id || '');
 
     if (!menu) {
       return res
@@ -96,4 +98,4 @@ router.route('/:id').delete(
   })
 );
 
-module.exports = router;
+export default router;
