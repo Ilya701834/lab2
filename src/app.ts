@@ -1,7 +1,8 @@
-const express = require('express');
-const menuRouter = require('./resources/menus/menu.router');
-const dishRouter = require('./resources/dishs/dish.router');
-const categoryRouter = require('./resources/categorys/category.router');
+import express from 'express';
+
+import menuRouter from'./resources/menus/menu.router';
+import dishRouter from './resources/dishs/dish.router';
+import categoryRouter from'./resources/categorys/category.router';
 
 const app = express();
 
@@ -19,4 +20,4 @@ app.use('/menus', menuRouter);
 app.use('/dishes', dishRouter);
 app.use('/categories', categoryRouter);
 
-module.exports = app;
+export default app;

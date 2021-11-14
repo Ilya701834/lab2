@@ -1,5 +1,7 @@
-const { PORT } = require('./common/config');
-const app = require('./app');
+import config from './common/config';
+import app from './app';
+
+const { PORT } = config;
 
 app.listen(PORT, () =>
   process.stdout.write(`App is running on http://localhost:${PORT}`)
