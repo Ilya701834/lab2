@@ -1,12 +1,15 @@
-const { StatusCodes } = require('http-status-codes');
-const router = require('express').Router();
-const Dish = require('./dish.model');
+import { StatusCodes } from 'http-status-codes';
+import { Request, Response, Router } from 'express';
 
-const dishesService = require('./dish.service');
-const catchErrors = require('../../common/catchErrors');
+
+import Dish from './dish.model';
+import dishesService from './dish.service';
+import catchErrors from'../../common/catchErrors';
+
+const router = Router({mergeParams: true})
 
 router.route('/').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (_req: Request, res: Response) => {
     const dishes = await dishesService.getAll();
 
     res.json(dishes.map(Dish.toResponse));
@@ -14,7 +17,7 @@ router.route('/').get(
 );
 
 router.route('/').post(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const {categoryId, title, description, photo, isPublish, ingredients, price} = req.body;
 
     const dish = await dishesService.createDish({categoryId, title, description, photo, isPublish, ingredients, price});
@@ -30,10 +33,10 @@ router.route('/').post(
 );
 
 router.route('/:id').get(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const dish = await dishesService.getById(id);
+    const dish = await dishesService.getById(id || '');
 
     if (dish) {
       res.json(Dish.toResponse(dish));
@@ -46,11 +49,11 @@ router.route('/:id').get(
 );
 
 router.route('/:id').put(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
     const {categoryId, title, description, photo, isPublish, ingredients, price} = req.body;
 
-    const dish = await dishesService.updateById({id, categoryId, title, description, photo, isPublish, ingredients, price});
+    const dish = await dishesService.updateById({id:id ||'', categoryId, title, description, photo, isPublish, ingredients, price});
 
     if (dish) {
       res.status(StatusCodes.OK).json(Dish.toResponse(dish));
@@ -63,10 +66,10 @@ router.route('/:id').put(
 );
 
 router.route('/:id').delete(
-  catchErrors(async (req, res) => {
+  catchErrors(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const dish = await dishesService.deleteById(id);
+    const dish = await dishesService.deleteById(id || '');
 
     if (!dish) {
       return res
@@ -80,4 +83,4 @@ router.route('/:id').delete(
   })
 );
 
-module.exports = router;
+export default router;

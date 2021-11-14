@@ -1,7 +1,19 @@
-const { v4: uuid } = require('uuid');
+import { v4 as uuid } from 'uuid';
+
+import { TDish, TDishModel } from './dish.type';
 
 class Dish {
-    constructor({ id = uuid(),
+
+  id:string
+  categoryId: string | null
+  title: string
+  description: string
+  photo:string
+  isPublish:boolean
+  ingredients: string[]
+  price:number
+
+    constructor({
                     categoryId = 'null',
                     title = 'BOARD',
                     description = `description`,
@@ -9,8 +21,8 @@ class Dish {
                     isPublish=true,
                     ingredients = [''],
                     price = 1000
-    } = {}) {
-        this.id = id;
+    }: Partial<TDish> = {}) {
+        this.id = uuid();
         this.categoryId= categoryId;
         this.title = title;
         this.description = description;
@@ -20,10 +32,10 @@ class Dish {
         this.price = price;
     }
 
-    static toResponse(dish) {
+    static toResponse(dish: TDishModel): TDishModel {
         const { id, categoryId, title, description, photo, isPublish, ingredients, price} = dish;
         return { id, categoryId, title, description, photo, isPublish, ingredients, price};
     }
 }
 
-module.exports = Dish;
+export default Dish;
