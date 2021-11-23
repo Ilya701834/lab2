@@ -1,8 +1,8 @@
 import express from 'express';
 
-import menuRouter from'./resources/menus/menu.router';
+import menuRouter from './resources/menus/menu.router';
 import dishRouter from './resources/dishs/dish.router';
-import categoryRouter from'./resources/categorys/category.router';
+import categoryRouter from './resources/categorys/category.router';
 
 const app = express();
 

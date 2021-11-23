@@ -7,9 +7,13 @@ import { TCategory, TCategoryModel} from './category.type';
 class Category {
 
   id:string
+
   menuId:string
+
   title:string
+
   photo:string
+
   isVisible:boolean
 
     constructor({

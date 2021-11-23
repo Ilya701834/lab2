@@ -5,8 +5,11 @@ import { TMenu, TMenuModel } from './menu.type';
 class Menu {
 
   id:string
+
   title:string
+
   photo:string
+
   isPublish:boolean
 
     constructor({

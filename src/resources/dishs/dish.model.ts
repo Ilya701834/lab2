@@ -5,12 +5,19 @@ import { TDish, TDishModel } from './dish.type';
 class Dish {
 
   id:string
+
   categoryId: string | null
+
   title: string
+
   description: string
+
   photo:string
+
   isPublish:boolean
+
   ingredients: string[]
+
   price:number
 
     constructor({
