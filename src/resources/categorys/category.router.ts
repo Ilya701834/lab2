@@ -1,95 +1,85 @@
 import { StatusCodes } from 'http-status-codes';
 import { Request, Response, Router } from 'express';
-import Category from './category.model';
+import asyncHandler from 'express-async-handler';
 
+import Category from './category.entity';
+import Dish from '../dishs/dish.entity';
 import categoriesService from './category.service';
-import catchErrors from '../../common/catchErrors';
-import Dishes from '../dishs/dish.model';
 
-const router = Router({mergeParams: true})
+const router = Router({ mergeParams: true });
 
 router.route('/').get(
-  catchErrors(async (_req: Request, res: Response) => {
+  asyncHandler(async (_req: Request, res: Response) => {
     const categories = await categoriesService.getAll();
 
-    res.json(categories.map(Category.toResponse));
-  })
+    res.status(StatusCodes.OK).json(categories.map((category)=>Category.toResponse(category)))
+  }),
 );
 
 router.route('/').post(
-  catchErrors(async (req: Request, res: Response) => {
-    const {title, menuId, photo, isVisible} = req.body;
+  asyncHandler(async (req: Request, res: Response) => {
 
-    const category = await categoriesService.createCategory({title, menuId, photo, isVisible});
+    const category = await categoriesService.createCategory(req.body);
 
     if (category) {
       res.status(StatusCodes.CREATED).json(Category.toResponse(category));
     } else {
-      res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ code: 'CATEGORY_NOT_CREATE', msg: 'Category not create' });
+      res.status(StatusCodes.BAD_REQUEST).json({ code: 'BAD_REQUEST', msg: 'Bad request' });
     }
-  })
+  }),
 );
 
 router.route('/:id').get(
-  catchErrors(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const category = await categoriesService.getById(id || '');
+    const category = await categoriesService.getById( id!);
 
     if (category) {
       res.json(Category.toResponse(category));
     } else {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
+      res.status(StatusCodes.NOT_FOUND).json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
     }
-  })
+  }),
 );
 
 router.route('/:id').put(
-  catchErrors(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const {title, photo, isVisible} = req.body;
 
-    const category = await categoriesService.updateById({id:id ||'', title, photo, isVisible});
+    const category = await categoriesService.updateById(id!, req.body);
 
     if (category) {
       res.status(StatusCodes.OK).json(Category.toResponse(category));
     } else {
-      res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
+      res.status(StatusCodes.NOT_FOUND).json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
     }
-  })
+  }),
 );
 
 router.route('/:id').delete(
-  catchErrors(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const category = await categoriesService.deleteById(id|| '');
+    const category = await categoriesService.deleteById( id!);
 
-    if (!category) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
+    if (category) {
+      res
+        .status(StatusCodes.NO_CONTENT)
+        .json({ code: 'CATEGORY_DELETED', msg: 'The category has been deleted' });
+    } else {
+      res.status(StatusCodes.NOT_FOUND).json({ code: 'CATEGORY_NOT_FOUND', msg: 'Category not found' });
     }
-
-    return res
-      .status(StatusCodes.NO_CONTENT)
-      .json({ code: 'CATEGORY_DELETED', msg: 'The category has been deleted' });
-  })
+  }),
 );
 
 router.route('/:id/dishes').get(
-  catchErrors(async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const dishes = await categoriesService.getDishByCategoryId(id || '');
+    const dishes = await categoriesService.getAllDishes(id || '');
 
     if (dishes) {
-      res.json(dishes.map((el)=>Dishes.toResponse(el)));
+      res.json(dishes.map((el)=>Dish.toResponse(el)));
     } else {
       res
         .status(StatusCodes.NOT_FOUND)
