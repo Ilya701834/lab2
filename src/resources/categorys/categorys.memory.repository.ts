@@ -1,70 +1,34 @@
-import Category from './category.model'
-import { TCategory, TCategoryModel } from './category.type';
-import dishesRepo from '../dishs/dish.memory.repository';
+import { EntityRepository, AbstractRepository } from 'typeorm';
+import CategoryModel from './category.entity';
 
+@EntityRepository(CategoryModel)
+export class CategoryRepository extends AbstractRepository<CategoryModel> {
+  createCategory(category: Omit<CategoryModel, 'id'>) {
+    const categories = this.repository.create(category);
+    return this.manager.save(categories);
+  }
 
-const Categories:TCategoryModel[] = [new Category()];
+  getAllCategories() {
+    return this.repository.find();
+  }
 
-const getAll = async ():Promise<TCategoryModel[]> => Categories;
+  getById(id: string) {
+    return this.repository.findOne({ id });
+  }
 
-const getById = async (id:string):Promise<TCategoryModel | null> => Categories.find((category) => category.id === id) || null;
+  updateById(id: string, category: Partial<CategoryModel>) {
+    return this.repository.update({ id }, category);
+  }
 
-const createCategory = async ({menuId, title, photo, isVisible}:TCategory):Promise<TCategoryModel> => {
-  const category = new Category({menuId, title, photo, isVisible});
-  Categories.push(category);
-  return category;
-};
+  deleteById(id: string) {
+    return this.repository.delete({ id });
+  }
 
-const deleteById = async (id:string):Promise<TCategoryModel | null> => {
-  const categoryPosition = Categories.findIndex((category) => category.id === id);
+  deleteByMenuId(id: string) {
+    return this.repository.delete({menuId: id });
+  }
 
-  if (categoryPosition === -1) return null;
-
-  const categoryDeletable = Categories[categoryPosition]!;
-
-  Categories.splice(categoryPosition, 1);
-  return categoryDeletable;
-};
-
-const updateById = async ({id, ...payload}:Partial<TCategoryModel>):Promise<TCategoryModel | null> => {
-  const categoryPosition = Categories.findIndex((category) => category.id === id);
-
-  if (categoryPosition === -1) return null;
-
-  const oldCategory = Categories[categoryPosition]!;
-  const newCategory = { ...oldCategory, ...payload};
-
-  Categories.splice(categoryPosition, 1, newCategory);
-  return newCategory;
-};
-
-const deleteByMenuId = async (menuId:string):Promise<void> => {
-  const menuCategories = Categories.filter((category) => category.menuId === menuId);
-
-  await Promise.allSettled(menuCategories.map(async (category) => {
-    await deleteById(category.id);
-    await dishesRepo.deleteByCategoryId(category.id)
-  }));
-};
-
-const getCategoryIdByMenuId = async (menuId:string):Promise<TCategoryModel[]> => {
-  const categories = Categories.filter((category) => category.menuId === menuId)
-  return categories
-};
-
-const getCategoryByMenuId =  (menuId:string):TCategoryModel[] => {
-  const categories = Categories.filter((category) => category.menuId === menuId)
-  return categories
-};
-
-export default {
-  Categories,
-  getAll,
-  getById,
-  createCategory,
-  deleteById,
-  updateById,
-  deleteByMenuId,
-  getCategoryIdByMenuId,
-  getCategoryByMenuId
-};
+  getCategoryByMenuId(id: string) {
+    return this.repository.find({ menuId:id});
+  }
+}

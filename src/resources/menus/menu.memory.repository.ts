@@ -1,47 +1,30 @@
-import Menu from './menu.model'
+import { EntityRepository, AbstractRepository } from 'typeorm';
+import MenuModel from './menu.entity';
 
-import { TMenu ,TMenuModel } from './menu.type';
+@EntityRepository(MenuModel)
+export class MenuRepository extends AbstractRepository<MenuModel> {
+  createMenu(menu: Omit<MenuModel, 'id'>) {
+    const menus = this.repository.create(menu);
+    return this.manager.save(menus);
+  }
 
-const Menus:TMenuModel[] = [new Menu()];
+  getAllMenus() {
+    return this.repository.find();
+  }
 
-const getAll = async ():Promise<TMenuModel[]> => Menus;
+  getById(id: string) {
+    return this.repository.findOne({ id });
+  }
 
-const getById = async (id:string):Promise<TMenuModel | null> => Menus.find((menu) => menu.id === id)|| null;
+  updateById(id: string, menu: Partial<MenuModel>) {
+    return this.repository.update({ id }, menu);
+  }
 
-const createMenu = async ({title, photo, isPublish  }:TMenu):Promise<TMenuModel | null> => {
-  const menu = new Menu({ title, photo, isPublish });
-  Menus.push(menu);
-  return menu;
-};
+  deleteById(id: string) {
+    return this.repository.delete({ id });
+  }
 
-const deleteById = async (id:string):Promise<TMenuModel | null> => {
-  const menuPosition = Menus.findIndex((menu) => menu.id === id);
-
-  if (menuPosition === -1) return null;
-
-  const menuDeletable = Menus[menuPosition]!;
-
-  Menus.splice(menuPosition, 1);
-  return menuDeletable;
-};
-
-const updateById = async ({ id, ...payload}: Partial<TMenuModel>):Promise<TMenuModel | null> => {
-  const menuPosition = Menus.findIndex((menu) => menu.id === id);
-
-  if (menuPosition === -1) return null;
-
-  const oldMenu = Menus[menuPosition]!;
-  const newMenu = { ...oldMenu, ...payload};
-
-  Menus.splice(menuPosition, 1, newMenu);
-  return newMenu;
-};
-
-export default {
-  Menus,
-  getAll,
-  getById,
-  createMenu,
-  deleteById,
-  updateById,
-};
+  getCategoryByMenuId(id: string) {
+    return this.repository.find({ id });
+  }
+}

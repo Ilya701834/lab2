@@ -1,59 +1,35 @@
-import Dish from './dish.model';
-import { TDish, TDishModel } from './dish.type';
+import { EntityRepository, AbstractRepository } from 'typeorm';
+import DishModel from './dish.entity';
 
-const Dishes:TDishModel[] = [new Dish()];
+@EntityRepository(DishModel)
+export class DishRepository extends AbstractRepository<DishModel> {
+  createDish(dish: Omit<DishModel, 'id'>) {
+    const dishes = this.repository.create(dish);
+    return this.manager.save(dishes);
+  }
 
-const getAll = async (): Promise<TDishModel[]> => Dishes;
+  getAllDishes() {
+    return this.repository.find();
+  }
 
-const getById = async (id: string):Promise<TDishModel | null> => Dishes.find((dish) => dish.id === id) || null;
+  getById(id: string) {
+    return this.repository.findOne({ id });
+  }
 
-const createDish = async ({categoryId, title, description, photo, isPublish, ingredients, price}: TDish):Promise<TDishModel> => {
-  const dish = new Dish({categoryId, title, description, photo, isPublish, ingredients, price });
-  Dishes.push(dish);
-  return dish;
-};
+  updateById(id: string, dish: Partial<DishModel>) {
+    return this.repository.update({ id }, dish);
+  }
 
-const deleteById = async (id:string):Promise<TDishModel | null> => {
-  const dishPosition = Dishes.findIndex((dish) => dish.id === id);
+  deleteById(id: string) {
+    return this.repository.delete({ id });
+  }
 
-  if (dishPosition === -1) return null;
+  deleteByCategoryId(id: string) {
+    return this.repository.delete({categoryId: id });
+  }
 
-  const dishDeletable = Dishes[dishPosition]!;
+  getDishByCategoryId(id: string) {
+    return this.repository.find({ categoryId:id});
+  }
 
-  Dishes.splice(dishPosition, 1);
-  return dishDeletable;
-};
-
-const updateById = async ({id, ...payload}: Partial<TDishModel>):Promise<TDishModel | null> => {
-  const dishPosition = Dishes.findIndex((dish) => dish.id === id);
-
-  if (dishPosition === -1) return null;
-
-  const oldDish = Dishes[dishPosition]!;
-  const newDish = { ...oldDish, ...payload};
-
-  Dishes.splice(dishPosition, 1, newDish);
-  return newDish;
-};
-
-const deleteByCategoryId = async (categoryId:string):Promise<void> => {
-  const categoryDish = Dishes.filter((dish) => dish.categoryId === categoryId);
-
-  await Promise.allSettled(categoryDish.map(async (dish) => deleteById(dish.id)));
-};
-
-const getDishByCategoryId = async (categoryId:string):Promise<TDishModel[] | null> => {
-  const dishes = Dishes.filter((dish) => dish.categoryId === categoryId)
-  return dishes
-};
-
-export default {
-  Dishes,
-  getAll,
-  getById,
-  createDish,
-  deleteById,
-  updateById,
-  deleteByCategoryId,
-  getDishByCategoryId
-};
+}
