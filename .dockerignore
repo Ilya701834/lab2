@@ -1,6 +1,7 @@
 node_modules
+docker
 
 doc/*
 !doc/api.yaml
 
-logs/*
+logs/*.log
