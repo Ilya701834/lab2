@@ -1,23 +1,51 @@
-import categoriesRepo from './categorys.memory.repository';
-import dishesRepo from '../dishs/dish.memory.repository';
-import { TCategory, TCategoryModel } from './category.type';
-import { TDishModel } from '../dishs/dish.type';
+import { getCustomRepository } from 'typeorm';
+import CategoryModel from './category.entity';
+
+import { CategoryRepository } from './categorys.memory.repository';
+import { DishRepository } from '../dishs/dish.memory.repository';
+import DishModel from '../dishs/dish.entity';
 
 
-const getAll = ():Promise<TCategoryModel[]> => categoriesRepo.getAll();
-const getById = (id:string):Promise<TCategoryModel | null> => categoriesRepo.getById(id);
-const createCategory = ({title, menuId, photo, isVisible}:TCategory):Promise<TCategoryModel | null> =>
-  categoriesRepo.createCategory({title, menuId, photo, isVisible});
-const deleteById = async (id:string):Promise<TCategoryModel | null> => {
-  const categoryDeletable = await getById(id);
-  await categoriesRepo.deleteById(id)
-  await dishesRepo.deleteByCategoryId(id)
+const createCategory = async (data: Omit<CategoryModel, 'id'>): Promise<CategoryModel> => {
+  const categoryRepository = getCustomRepository(CategoryRepository);
+  const category = await categoryRepository.createCategory(data);
+  return category;
+};
+
+const getAll = async (): Promise<CategoryModel[]> => {
+  const categoryRepository = getCustomRepository(CategoryRepository);
+  return categoryRepository.getAllCategories();
+};
+
+const getById = async (id: string): Promise<CategoryModel | null> => {
+  const categoryRepository = getCustomRepository(CategoryRepository);
+  const category = await categoryRepository.getById(id);
+  if (!category) return null;
+  return category;
+};
+
+const deleteById = async (id: string): Promise<CategoryModel | null> => {
+  const categoryRepository = getCustomRepository(CategoryRepository);
+  const dishRepository = getCustomRepository(DishRepository);
+  const categoryDeletable = await categoryRepository.getById(id);
+  if (!categoryDeletable) return null;
+  await categoryRepository.deleteById(id);
+  await dishRepository.deleteByCategoryId(id)
+
   return categoryDeletable;
 };
-const updateById = (category: { photo: any; id: string; isVisible: any; title: any }):Promise<TCategoryModel | null> =>
-  categoriesRepo.updateById(category);
 
-const getDishByCategoryId = (id:string):Promise<TDishModel[] | null> =>
-  dishesRepo.getDishByCategoryId(id)
+const updateById = async (id: string, data: Omit<CategoryModel, 'id'>): Promise<CategoryModel | null> => {
+  const categoryRepository = getCustomRepository(CategoryRepository);
+  await categoryRepository.updateById(id, data);
+  const category = await categoryRepository.getById(id);
+  if (!category) return null;
+  return category;
+};
 
-export default { getAll, getById, createCategory, deleteById, updateById, getDishByCategoryId };
+const getAllDishes = async (id: string): Promise<DishModel[]> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  return dishRepository.getDishByCategoryId(id);
+};
+
+export default { getAll, getById, createCategory, deleteById, updateById, getAllDishes };

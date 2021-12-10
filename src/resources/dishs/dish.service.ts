@@ -1,18 +1,42 @@
-import dishesRepo from './dish.memory.repository';
-import { TDish, TDishModel } from './dish.type';
+import { getCustomRepository } from 'typeorm';
+import DishModel from './dish.entity';
+
+import { DishRepository } from './dish.memory.repository';
 
 
-const getAll = ():Promise<TDishModel[]> => dishesRepo.getAll();
-const getById = (id:string):Promise<TDishModel | null> => dishesRepo.getById(id);
-const createDish = ({categoryId, title, description, photo, isPublish, ingredients, price}:TDish):Promise<TDishModel | null> =>
-  dishesRepo.createDish({categoryId,title, description, photo, isPublish, ingredients, price});
-const deleteById = async (id:string):Promise<TDishModel | null> => {
-  const dishDeletable = await getById(id);
-  dishesRepo.deleteById(id)
+const createDish = async (data: Omit<DishModel, 'id'>): Promise<DishModel> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  const dish = await dishRepository.createDish(data);
+  return dish;
+};
+
+const getAll = async (): Promise<DishModel[]> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  return dishRepository.getAllDishes();
+};
+
+const getById = async (id: string): Promise<DishModel | null> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  const dish = await dishRepository.getById(id);
+  if (!dish) return null;
+  return dish;
+};
+
+const deleteById = async (id: string): Promise<DishModel | null> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  const dishDeletable = await dishRepository.getById(id);
+  if (!dishDeletable) return null;
+  await dishRepository.deleteById(id);
+
   return dishDeletable;
 };
-const updateById = (dish:TDishModel):Promise<TDishModel | null> =>
-  dishesRepo.updateById(dish);
 
+const updateById = async (id: string, data: Omit<DishModel, 'id'>): Promise<DishModel | null> => {
+  const dishRepository = getCustomRepository(DishRepository);
+  await dishRepository.updateById(id, data);
+  const dish = await dishRepository.getById(id);
+  if (!dish) return null;
+  return dish;
+};
 
 export default { getAll, getById, createDish, deleteById, updateById };
