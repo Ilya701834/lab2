@@ -41,3 +41,30 @@ npm run lint
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+
+## Or Running via docker
+
+Run in terminal:
+
+```
+docker-compose up
+```
+
+If you want to stop, press the keyboard shortcut first **Ctrl+C**, then enter in the terminal:
+
+```
+docker-compose down
+```
+
+Rebuild images & start containers:
+
+```
+docker compose up —build
+```
+
+Сonnected services:
+
+- PostgreSQL
+- pgAdmin
+- Express
