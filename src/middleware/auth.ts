@@ -25,7 +25,7 @@ export const auth = asyncHandler(  (req: Request, res: Response, next: NextFunct
     const userRepository = getCustomRepository(UserRepository);
     const user = userRepository.getById(id)
     if(!user){
-      res.status(StatusCodes.UNAUTHORIZED).json({massage:"not authorized"})
+      res.status(StatusCodes.FORBIDDEN).json({massage:"not found user"})
     } else {
         next()
     }
