@@ -1,9 +1,12 @@
 import express from 'express';
 
+import authRouter from './resources/auth/auth.router';
 import menuRouter from './resources/menus/menu.router';
 import dishRouter from './resources/dishs/dish.router';
 import categoryRouter from './resources/categorys/category.router';
+import userRouter from './resources/users/user.router';
 import { successHttpLogger, errorHttpLogger, errorHandler } from './middleware';
+import { auth } from './middleware/auth';
 
 const app = express();
 
@@ -20,9 +23,11 @@ app.use('/', (req, res, next) => {
 app.use(successHttpLogger);
 app.use(errorHttpLogger);
 
-app.use('/menus', menuRouter);
-app.use('/dishes', dishRouter);
-app.use('/categories', categoryRouter);
+app.use('/auth', authRouter);
+app.use('/users', auth, userRouter);
+app.use('/menus', auth, menuRouter);
+app.use('/dishes', auth, dishRouter);
+app.use('/categories', auth, categoryRouter);
 
 app.use(errorHandler)
 
